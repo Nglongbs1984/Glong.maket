@@ -2,16 +2,16 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tiệm Đấu Giá - Bất Ngờ</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       text-align: center;
+      margin-top: 50px;
     }
-    #payBtn {
-      display: none;
+    button {
       padding: 10px 20px;
       font-size: 16px;
     }
@@ -19,52 +19,44 @@
 </head>
 <body>
   <h1>Tiệm Đấu Giá - Bất Ngờ</h1>
-  <p id="status">Đang xác thực với Pi Network...</p>
-  <button id="payBtn">Thanh toán 0.001 Pi</button>
+  <p id="greeting">Đang kiểm tra đăng nhập...</p>
+  <button onclick="makePayment()">Thanh toán 0.001 Pi</button>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      if (!window.Pi) {
-        alert("Vui lòng mở trang này trong Pi Browser để sử dụng.");
-        return;
-      }
+    window.Pi.init({ version: "2.0" });
 
-      // ✅ Khởi tạo Pi SDK
-      Pi.init({ version: "2.0" });
+    let username = "undefined";
 
-      // ✅ Xác thực đăng nhập
-      Pi.authenticate([]).then(function (auth) {
-        document.getElementById("status").innerText =
-          "Xin chào " + auth.user.username + "! Bạn đã đăng nhập thành công.";
-        document.getElementById("payBtn").style.display = "inline-block";
-      }).catch(function (error) {
-        document.getElementById("status").innerText =
-          "❌ Không thể xác thực. Vui lòng đảm bảo bạn đã đăng nhập vào Pi.";
-        console.error("Lỗi xác thực:", error);
-      });
-
-      // ✅ Gọi thanh toán khi nhấn nút
-      document.getElementById("payBtn").addEventListener("click", function () {
-        Pi.createPayment({
-          amount: 0.001,
-          memo: "Thanh toán thử nghiệm Pi",
-          metadata: { type: "test" }
-        }, {
-          onReadyForServerApproval: function (paymentId) {
-            alert("⏳ Chờ duyệt thanh toán: " + paymentId);
-          },
-          onReadyForServerCompletion: function (paymentId, txid) {
-            alert("✅ Giao dịch thành công!\nTXID: " + txid);
-          },
-          onCancel: function (paymentId) {
-            alert("❌ Giao dịch đã bị hủy: " + paymentId);
-          },
-          onError: function (error, paymentId) {
-            alert("❌ Lỗi giao dịch: " + error + "\nPayment ID: " + paymentId);
-          }
-        });
-      });
+    window.Pi.authenticate([]).then(function(auth) {
+      username = auth.user.username;
+      document.getElementById("greeting").innerText =
+        "Xin chào " + username + "! Bạn đã đăng nhập thành công.";
+    }).catch(function(error) {
+      console.error("Lỗi khi xác thực:", error);
+      document.getElementById("greeting").innerText =
+        "Không thể xác thực người dùng.";
     });
+
+    function makePayment() {
+      window.Pi.createPayment({
+        amount: 0.001,
+        memo: "Thanh toán thử nghiệm Pi",
+        metadata: { type: "test" }
+      }, {
+        onReadyForServerApproval: function (paymentId) {
+          console.log("Giao dịch chờ duyệt:", paymentId);
+        },
+        onReadyForServerCompletion: function (paymentId, txid) {
+          alert("✅ Giao dịch hoàn tất!\nMã: " + paymentId + "\nTxID: " + txid);
+        },
+        onCancel: function (paymentId) {
+          alert("❌ Giao dịch bị huỷ. Mã: " + paymentId);
+        },
+        onError: function (error, paymentId) {
+          alert("❌ Lỗi xảy ra: " + error + "\nMã giao dịch: " + paymentId);
+        }
+      });
+    }
   </script>
 </body>
 </html>
