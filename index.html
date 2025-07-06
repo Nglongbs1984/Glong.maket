@@ -2,38 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pi Network Login Demo</title>
+  <title>Tiệm đấu giá Pi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f5f5f5;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    #greeting {
+      margin-top: 30px;
+      font-size: 20px;
+      color: #0077cc;
+    }
+  </style>
 </head>
 <body>
-  <h2>Đăng nhập với Pi Network</h2>
-  <button onclick="login()">Đăng nhập</button>
-  <p id="result"></p>
+  <h2>Chào mừng đến với Tiệm đấu giá</h2>
+  <button onclick="login()">Đăng nhập bằng Pi Network</button>
 
-  <!-- Pi SDK -->
+  <p id="greeting"></p>
+
+  <!-- Tích hợp Pi SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script>
     const Pi = window.Pi;
 
-    // Khởi tạo SDK
     Pi.init({
       version: "2.0",
-      sandbox: false // để false nếu bạn đã xác minh domain
+      sandbox: false // Đặt false nếu đã xác minh domain
     });
 
     function login() {
-      Pi.authenticate(["username", "payments"], onSuccess, onFailure);
+      Pi.authenticate(["username"], onLoginSuccess, onLoginFailure);
     }
 
-    function onSuccess(authResult) {
-      document.getElementById("result").innerText =
-        "Xin chào " + authResult.user.username;
-      console.log("Thông tin user:", authResult);
+    function onLoginSuccess(authResult) {
+      const username = authResult.user.username;
+      document.getElementById("greeting").innerText =
+        "Tiệm đấu giá xin chào, " + username + "!";
+      console.log("User đã đăng nhập:", username);
     }
 
-    function onFailure(error) {
+    function onLoginFailure(error) {
       console.error("Lỗi đăng nhập:", error);
-      document.getElementById("result").innerText =
-        "Đăng nhập thất bại: " + error;
+      document.getElementById("greeting").innerText = "Đăng nhập thất bại!";
     }
   </script>
 </body>
