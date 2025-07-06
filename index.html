@@ -2,60 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Tiệm đấu giá Pi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tiệm Đấu Giá - Bất Ngờ</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 30px;
-      background-color: #f5f5f5;
       text-align: center;
-    }
-    h2 {
-      color: #333;
+      padding: 50px;
+      background: #f7f7f7;
     }
     button {
-      padding: 10px 20px;
+      padding: 15px 30px;
       font-size: 16px;
-      margin-top: 20px;
+      background-color: #7b3fe4;
+      color: white;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
-    #greeting {
-      margin-top: 30px;
-      font-size: 20px;
-      color: #0077cc;
+    button:hover {
+      background-color: #622bcf;
     }
   </style>
 </head>
 <body>
-  <h2>Chào mừng đến với Tiệm đấu giá</h2>
-  <button onclick="login()">Đăng nhập bằng Pi Network</button>
+  <h1>Tiệm Đấu Giá - Bất Ngờ</h1>
+  <p>Nhấn nút bên dưới để thực hiện giao dịch Pi thử nghiệm.</p>
+  <button onclick="processPayment()">Thanh toán thử (0.001 Test-Pi)</button>
 
-  <p id="greeting"></p>
-
-  <!-- Tích hợp Pi SDK -->
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script>
-    const Pi = window.Pi;
+    async function processPayment() {
+      try {
+        const paymentData = {
+          amount: 0.001,
+          memo: "Giao dịch test Pi SDK",
+          metadata: { type: "test" }
+        };
 
-    Pi.init({
-      version: "2.0",
-      sandbox: false // Đặt false nếu đã xác minh domain
-    });
+        const callbacks = {
+          onReadyForServerApproval: function (paymentId) {
+            console.log("Chờ xác nhận server:", paymentId);
+            // Nếu có server riêng, gửi paymentId lên đó tại đây.
+          },
+          onReadyForServerCompletion: function (paymentId, txid) {
+            console.log("Giao dịch hoàn tất:", paymentId, txid);
+            alert("✅ Giao dịch hoàn tất! TxID: " + txid);
+          },
+          onCancel: function (paymentId) {
+            console.log("Giao dịch bị huỷ:", paymentId);
+            alert("❌ Giao dịch bị huỷ.");
+          },
+          onError: function (error, paymentId) {
+            console.error("Lỗi xảy ra:", error);
+            alert("⚠️ Có lỗi xảy ra: " + error);
+          }
+        };
 
-    function login() {
-      Pi.authenticate(["username"], onLoginSuccess, onLoginFailure);
-    }
-
-    function onLoginSuccess(authResult) {
-      const username = authResult.user.username;
-      document.getElementById("greeting").innerText =
-        "Tiệm đấu giá xin chào, " + username + "!";
-      console.log("User đã đăng nhập:", username);
-    }
-
-    function onLoginFailure(error) {
-      console.error("Lỗi đăng nhập:", error);
-      document.getElementById("greeting").innerText = "Đăng nhập thất bại!";
+        Pi.createPayment(paymentData, callbacks);
+      } catch (error) {
+        alert("Không thể khởi tạo giao dịch: " + error);
+      }
     }
   </script>
 </body>
