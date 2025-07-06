@@ -1,39 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tiệm Đấu Giá - Bất Ngờ</title>
+  <title>Test Pi Payment</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
-  <h1>Tiệm Đấu Giá - Bất Ngờ</h1>
-  <p>Nhấn nút bên dưới để thực hiện giao dịch Pi thử nghiệm.</p>
-  <button onclick="makePayment()">Thanh toán thử</button>
+  <h2>Test giao dịch Pi Network</h2>
+  <button id="payBtn">Thanh toán 0.001 Pi</button>
 
   <script>
-    // ✅ Bắt buộc: khởi tạo SDK
-    window.Pi.init({ version: "2.0" });
+    document.addEventListener('DOMContentLoaded', () => {
+      // ✅ Khởi tạo Pi SDK
+      if (window.Pi) {
+        Pi.init({ version: "2.0" });
+        console.log("Pi SDK đã được khởi tạo");
+      } else {
+        alert("Không tìm thấy Pi SDK. Bạn cần chạy trang này trong Pi Browser.");
+        return;
+      }
 
-    function makePayment() {
-      window.Pi.createPayment({
-        amount: 0.001,
-        memo: "Test Pi Payment",
-        metadata: { type: "test" }
-      }, {
-        onReadyForServerApproval: function (paymentId) {
-          console.log("✔️ Chờ server duyệt:", paymentId);
-        },
-        onReadyForServerCompletion: function (paymentId, txid) {
-          console.log("✔️ Giao dịch hoàn tất:", paymentId, txid);
-        },
-        onCancel: function (paymentId) {
-          alert("❌ Giao dịch bị hủy: " + paymentId);
-        },
-        onError: function (error, paymentId) {
-          alert("❌ Lỗi: " + error + "\nPayment ID: " + paymentId);
-        }
+      document.getElementById('payBtn').addEventListener('click', () => {
+        Pi.createPayment({
+          amount: 0.001,
+          memo: "Giao dịch thử nghiệm",
+          metadata: { purpose: "test" }
+        }, {
+          onReadyForServerApproval: (paymentId) => {
+            alert("Chờ xác nhận: " + paymentId);
+          },
+          onReadyForServerCompletion: (paymentId, txid) => {
+            alert("Giao dịch thành công!\nTXID: " + txid);
+          },
+          onCancel: (paymentId) => {
+            alert("Giao dịch bị hủy: " + paymentId);
+          },
+          onError: (error, paymentId) => {
+            alert("Lỗi: " + error + "\nPayment ID: " + paymentId);
+          }
+        });
       });
-    }
+    });
   </script>
 </body>
 </html>
