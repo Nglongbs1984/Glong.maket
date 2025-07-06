@@ -1,42 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Test Pi Payment</title>
+  <title>Tiệm Đấu Giá - Bất Ngờ</title>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    #payBtn {
+      display: none;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Test giao dịch Pi Network</h2>
+  <h1>Tiệm Đấu Giá - Bất Ngờ</h1>
+  <p id="status">Đang xác thực với Pi Network...</p>
   <button id="payBtn">Thanh toán 0.001 Pi</button>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // ✅ Khởi tạo Pi SDK
-      if (window.Pi) {
-        Pi.init({ version: "2.0" });
-        console.log("Pi SDK đã được khởi tạo");
-      } else {
-        alert("Không tìm thấy Pi SDK. Bạn cần chạy trang này trong Pi Browser.");
+    document.addEventListener("DOMContentLoaded", function () {
+      if (!window.Pi) {
+        alert("Vui lòng mở trang này trong Pi Browser để sử dụng.");
         return;
       }
 
-      document.getElementById('payBtn').addEventListener('click', () => {
+      // ✅ Khởi tạo Pi SDK
+      Pi.init({ version: "2.0" });
+
+      // ✅ Xác thực đăng nhập
+      Pi.authenticate([]).then(function (auth) {
+        document.getElementById("status").innerText =
+          "Xin chào " + auth.user.username + "! Bạn đã đăng nhập thành công.";
+        document.getElementById("payBtn").style.display = "inline-block";
+      }).catch(function (error) {
+        document.getElementById("status").innerText =
+          "❌ Không thể xác thực. Vui lòng đảm bảo bạn đã đăng nhập vào Pi.";
+        console.error("Lỗi xác thực:", error);
+      });
+
+      // ✅ Gọi thanh toán khi nhấn nút
+      document.getElementById("payBtn").addEventListener("click", function () {
         Pi.createPayment({
           amount: 0.001,
-          memo: "Giao dịch thử nghiệm",
-          metadata: { purpose: "test" }
+          memo: "Thanh toán thử nghiệm Pi",
+          metadata: { type: "test" }
         }, {
-          onReadyForServerApproval: (paymentId) => {
-            alert("Chờ xác nhận: " + paymentId);
+          onReadyForServerApproval: function (paymentId) {
+            alert("⏳ Chờ duyệt thanh toán: " + paymentId);
           },
-          onReadyForServerCompletion: (paymentId, txid) => {
-            alert("Giao dịch thành công!\nTXID: " + txid);
+          onReadyForServerCompletion: function (paymentId, txid) {
+            alert("✅ Giao dịch thành công!\nTXID: " + txid);
           },
-          onCancel: (paymentId) => {
-            alert("Giao dịch bị hủy: " + paymentId);
+          onCancel: function (paymentId) {
+            alert("❌ Giao dịch đã bị hủy: " + paymentId);
           },
-          onError: (error, paymentId) => {
-            alert("Lỗi: " + error + "\nPayment ID: " + paymentId);
+          onError: function (error, paymentId) {
+            alert("❌ Lỗi giao dịch: " + error + "\nPayment ID: " + paymentId);
           }
         });
       });
