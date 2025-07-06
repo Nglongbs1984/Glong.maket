@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pi Network Login Demo</title>
+</head>
+<body>
+  <h2>Đăng nhập với Pi Network</h2>
+  <button onclick="login()">Đăng nhập</button>
+  <p id="result"></p>
+
+  <!-- Pi SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script>
+    const Pi = window.Pi;
+
+    // Khởi tạo SDK
+    Pi.init({
+      version: "2.0",
+      sandbox: false // để false nếu bạn đã xác minh domain
+    });
+
+    function login() {
+      Pi.authenticate(["username", "payments"], onSuccess, onFailure);
+    }
+
+    function onSuccess(authResult) {
+      document.getElementById("result").innerText =
+        "Xin chào " + authResult.user.username;
+      console.log("Thông tin user:", authResult);
+    }
+
+    function onFailure(error) {
+      console.error("Lỗi đăng nhập:", error);
+      document.getElementById("result").innerText =
+        "Đăng nhập thất bại: " + error;
+    }
+  </script>
+</body>
+</html>
